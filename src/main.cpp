@@ -72,16 +72,18 @@ void loop() {
 
       Stream& response = http.getStream();
 
-      DynamicJsonDocument doc(16384);
-
+      const int capacity = 16384;
+      StaticJsonDocument<capacity> doc;
+      
       deserializeJson(doc, response);
 
-      if (doc["data"]["monitors"][0].isNull()) {
+      JsonArray departures = doc["data"]["monitors"][0]["lines"][0]["departures"]["departure"].as<JsonArray>();
+      if (departures.isNull()) {
         if (debugMode) {Serial.println("no more trains");}
         showNightTime();
       } else
       {
-        Serial.println(doc["data"]["monitors"][0]["lines"][0]["departures"]["departure"][0]["departureTime"]["countdown"].as<int>());
+        Serial.println(departures[0]["departureTime"]["countdown"].as<int>());
       }
     }
   http.end();
